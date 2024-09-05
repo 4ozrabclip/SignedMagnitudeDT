@@ -75,33 +75,46 @@ SignMag_t signMag_sum(SignMag_t sm1, SignMag_t sm2)
 {
 	SignMag_t result;
 	result.isNegative = false;
-	if (sm1.isNegative && sm2.isNegative) {
-		result = sm1.magnitude + sm2.magnitude;
-		result.isNegative = true;
-	} else if (sm1.isNegative && !sm2.isNegative) {
+	if (sm1.isNegative && !sm2.isNegative) {
 		if (sm1.magnitude > sm2.magnitude) {
-			result.isNegative = true;
-			result = sm1.magnitude + sm2.magnitude;
+		        result.isNegative = true;
+		        result.magnitude = sm1.magnitude - sm2.magnitude;
 		} else {
-			result = sm1.magnitude + sm2.magnitude;
+		        result.magnitude = sm2.magnitude - sm1.magnitude;
 		}
 	} else if (!sm1.isNegative && sm2.isNegative) {
 		if (sm1.magnitude < sm2.magnitude) {
-			result.isNegative = true;
-			result = sm1.magnitude + sm2.magnitude;
+		        result.isNegative = true;
+		        result.magnitude = sm2.magnitude - sm1.magnitude;
 		} else {
-			result = sm1.magnitude + sm2.magnitude;
+		        result.magnitude = sm1.magnitude - sm2.magnitude;
 		}
+			    
+	} else {
+	        if(sm1.isNegative && sm2.isNegative) result.isNegative = true;
+	        result.magnitude = sm1.magnitude + sm2.magnitude;
+	        if ((sm1.magnitude > 5000 || sm2.magnitude > 5000) && result.magnitude < 5000) {
+		result.magnitude = 65535; 
+	    }
 	}
-	result = sm1.magnitude + sm2.magnitude; 
+
+	return result;
 }
 int main(void)
 {
-	SignMag_t val = signMag_read();
-	printf("%s%hu ", val.isNegative ? "-" : "+", val.magnitude);
-	val = signMag_read();
-	printf("%s%hu ", val.isNegative ? "-" : "+", val.magnitude);
-	val = signMag_read();
-	printf("%s%hu ", val.isNegative ? "-" : "+", val.magnitude);
+	SignMag_t val;
+	val.isNegative = false;
+	val.magnitude = 5;
+	SignMag_t val2;
+	val2.isNegative = false;
+	val2.magnitude = 65535;
+	SignMag_t result = signMag_sum(val, val2);
+	printf("%s%hu\n", result.isNegative ? "-" : "+", result.magnitude);
+
+	//printf("%s%hu ", val.isNegative ? "-" : "+", val.magnitude);
+	//val = signMag_read();
+	//printf("%s%hu ", val.isNegative ? "-" : "+", val.magnitude);
+	//val = signMag_read();
+	//printf("%s%hu ", val.isNegative ? "-" : "+", val.magnitude);
 	return 0;
 }
