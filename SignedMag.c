@@ -91,14 +91,24 @@ SignMag_t signMag_sum(SignMag_t sm1, SignMag_t sm2)
 		}
 			    
 	} else {
-	        if(sm1.isNegative && sm2.isNegative) result.isNegative = true;
+	        if(sm1.isNegative && sm2.isNegative) {
+		       	result.isNegative = true;
+		}
 	        result.magnitude = sm1.magnitude + sm2.magnitude;
-	        if ((sm1.magnitude > 5000 || sm2.magnitude > 5000) && result.magnitude < 5000) {
-		result.magnitude = 65535; 
+	        if (sm1.magnitude + sm2.magnitude > result.magnitude) {
+			result.magnitude = 65535; 
 	    }
 	}
 
 	return result;
+}
+SignMag_t signMag_accumulate(const SignMag_t* array, size_t araySize)
+{
+	SignMag_t result;
+	for (size_t arrayIndex = 1; arrayIndex <= arraySize; arrayIndex++)
+	{
+		result = signMag_sum(array[arrayIndex-1], result);
+	}
 }
 int main(void)
 {
