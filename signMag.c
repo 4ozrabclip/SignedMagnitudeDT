@@ -1,13 +1,8 @@
 #include <stdio.h>
-#include <stdint.h>
-#include <stdbool.h>
 #include <stdlib.h>
 #include <ctype.h>
 
-typedef struct {
-	bool isNegative;
-	uint16_t magnitude;
-} SignMag_t;
+#include "signMag.h"
 
 SignMag_t signMag_init(bool isNegative, uint16_t magnitude)
 {
@@ -77,54 +72,37 @@ SignMag_t signMag_sum(SignMag_t sm1, SignMag_t sm2)
 	result.isNegative = false;
 	if (sm1.isNegative && !sm2.isNegative) {
 		if (sm1.magnitude > sm2.magnitude) {
-		        result.isNegative = true;
-		        result.magnitude = sm1.magnitude - sm2.magnitude;
+			result.isNegative = true;
+			result.magnitude = sm1.magnitude - sm2.magnitude;
 		} else {
-		        result.magnitude = sm2.magnitude - sm1.magnitude;
+		    result.magnitude = sm2.magnitude - sm1.magnitude;
 		}
 	} else if (!sm1.isNegative && sm2.isNegative) {
 		if (sm1.magnitude < sm2.magnitude) {
-		        result.isNegative = true;
-		        result.magnitude = sm2.magnitude - sm1.magnitude;
+			result.isNegative = true;
+			result.magnitude = sm2.magnitude - sm1.magnitude;
 		} else {
-		        result.magnitude = sm1.magnitude - sm2.magnitude;
+			result.magnitude = sm1.magnitude - sm2.magnitude;
 		}
 			    
 	} else {
-	        if(sm1.isNegative && sm2.isNegative) {
-		       	result.isNegative = true;
+		if(sm1.isNegative && sm2.isNegative) {
+			result.isNegative = true;
 		}
-	        result.magnitude = sm1.magnitude + sm2.magnitude;
-	        if (sm1.magnitude + sm2.magnitude > result.magnitude) {
+		result.magnitude = sm1.magnitude + sm2.magnitude;
+		if (sm1.magnitude + sm2.magnitude > result.magnitude) {
 			result.magnitude = 65535; 
 	    }
 	}
 
 	return result;
 }
-SignMag_t signMag_accumulate(const SignMag_t* array, size_t araySize)
+SignMag_t signMag_accumulate(const SignMag_t* array, size_t arraySize)
 {
 	SignMag_t result;
-	for (size_t arrayIndex = 1; arrayIndex <= arraySize; arrayIndex++)
-	{
+	for (size_t arrayIndex = 1; arrayIndex <= arraySize; arrayIndex++) {
 		result = signMag_sum(array[arrayIndex-1], result);
 	}
+	return result;
 }
-int main(void)
-{
-	SignMag_t val;
-	val.isNegative = false;
-	val.magnitude = 5;
-	SignMag_t val2;
-	val2.isNegative = false;
-	val2.magnitude = 65535;
-	SignMag_t result = signMag_sum(val, val2);
-	printf("%s%hu\n", result.isNegative ? "-" : "+", result.magnitude);
 
-	//printf("%s%hu ", val.isNegative ? "-" : "+", val.magnitude);
-	//val = signMag_read();
-	//printf("%s%hu ", val.isNegative ? "-" : "+", val.magnitude);
-	//val = signMag_read();
-	//printf("%s%hu ", val.isNegative ? "-" : "+", val.magnitude);
-	return 0;
-}
