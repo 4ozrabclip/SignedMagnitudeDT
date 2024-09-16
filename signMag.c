@@ -119,63 +119,80 @@ bool signMag_max(SignMag_t* num1, SignMag_t* num2, SignMag_t** max)
 	}
 	if (num1->isNegative && !num2->isNegative) {
 		*max = num2;
-		return true;
 	} else if (!num1->isNegative && num2->isNegative) {
 		*max = num1;
-		return true;
 	} else if (!num1->isNegative && !num2->isNegative) {
 		if (num1->magnitude >= num2->magnitude) {
 			*max = num1;
 		} else {
 			*max = num2;
 		}
-		return true;
 	} else if (num1->isNegative && num2->isNegative) {
 		if (num1->magnitude >= num2->magnitude) {
 			*max = num2;
 		} else {
 			*max = num1;
 		}
-		return true;
 	}
 	return false;
 }
-int main(void) {
-    // Define some SignMag_t values for testing
-    SignMag_t num1 = signMag_init(true, 30000);  // -30000
-    SignMag_t num2 = signMag_init(false, 20000); // 20000
-    SignMag_t num3 = signMag_init(true, 60000);  // -60000
-    SignMag_t num4 = signMag_init(false, 65535); // 65535
-    
-    // Pointers to hold the maximum values
-    SignMag_t* max;
 
-    // Test 1: Comparing -30000 and 20000
-    if (signMag_max(&num1, &num2, &max)) {
-        printf("Max of %d and %d is: ", num1.isNegative ? -num1.magnitude : num1.magnitude, num2.isNegative ? -num2.magnitude : num2.magnitude);
-        signMag_print(*max);
-    } else {
-        printf("Error in finding max.\n");
+SignMag_t* arrayMax(SignMag_t* array, size_t size, bool (*func)(SignMag_t*, SignMag_t*, SignMag_t**))
+{
+	SignMag_t* maxValueInArray = &array[0];
+	SignMag_t* valuePtr;
+	SignMag_t* currentMax;
+	for(size_t arrayIndex = 0; arrayIndex < size; arrayIndex++) {
+		valuePtr = &array[arrayIndex];
+		currentMax = maxValueInArray;
+		if(func(valuePtr, currentMax, &maxValueInArray)) {
+			return currentMax;
+		}
+	}
+	return maxValueInArray;
+}
+int main(void)
+{
+	size_t count = 0;
+	do{
+		SignMag_t test = signMag_read();
+		signMag_print(test);
+	}while (count < 100);
+
+	    SignMag_t values[100];
+    size_t count = 0;
+
+    while (count < 100) {
+        printf("Enter a sign magnitude value (or 'quit' to stop): ");
+        SignMag_t input = signMag_read();
+        if (input.magnitude == 0 && input.isNegative) {
+            char term[5];
+            if (scanf("%4s", term) == 1 && strcmp(term, "quit") == 0) {
+                break;
+                while (getchar() != '\n');
+                continue;
+            }
+        }
+        values[count++] = input;
     }
 
-    // Test 2: Comparing -60000 and 65535
-    if (signMag_max(&num3, &num4, &max)) {
-        printf("Max of %d and %d is: ", num3.isNegative ? -num3.magnitude : num3.magnitude, num4.isNegative ? -num4.magnitude : num4.magnitude);
-        signMag_print(*max);
-    } else {
-        printf("Error in finding max.\n");
+    printf("Entered values:\n");
+    for (size_t i = 0; i < count; i++) {
+        signMag_print(values[i]);
     }
+    print_separator();
 
-    // Test 3: Comparing two negative numbers
-    SignMag_t num5 = signMag_init(true, 40000); // -40000
-    SignMag_t num6 = signMag_init(true, 45000); // -45000
+    SignMag_t accumulated_sum = signMag_accumulate(values, count);
+    printf("Accumulated sum:\n");
+    signMag_print(accumulated_sum);
+    print_separator();
 
-    if (signMag_max(&num5, &num6, &max)) {
-        printf("Max of %d and %d is: ", num5.isNegative ? -num5.magnitude : num5.magnitude, num6.isNegative ? -num6.magnitude : num6.magnitude);
-        signMag_print(*max);
-    } else {
-        printf("Error in finding max.\n");
-    }
+    SignMag_t squared_sum = signMag_multiply(accumulated_sum, accumulated_sum);
+    printf("Square of accumulated sum:\n");
+    signMag_print(squared_sum);
+    print_separator();
 
-    return 0;
+    SignMag_t* max_value = arrayMax(values, count, signMag_max);
+    printf("Maximum value:\n");
+    signMag_print(*max_value);
 }
